@@ -46,9 +46,24 @@ export default function App() {
   // App Layout States
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [workbenchSubTab, setWorkbenchSubTab] = useState<string>('confirm');
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('aimagician-theme') === 'dark';
+    } catch {
+      return false;
+    }
+  });
   const [accentColor, setAccentColor] = useState<'blue' | 'green' | 'brown'>('blue');
   const [isReviewOpen, setIsReviewOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDarkMode);
+    try {
+      localStorage.setItem('aimagician-theme', isDarkMode ? 'dark' : 'light');
+    } catch {
+      /* private mode */
+    }
+  }, [isDarkMode]);
 
   // Check session on mount
   useEffect(() => {

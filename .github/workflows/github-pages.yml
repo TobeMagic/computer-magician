@@ -28,7 +28,7 @@ jobs:
         working-directory: frontend
         env:
           VITE_DEMO: "true"
-          VITE_BASE: /aimagician/
+          VITE_BASE: /computer-magician/
         run: npm ci && npm run build
       - uses: actions/upload-pages-artifact@v3
         with:

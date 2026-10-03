@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <a href="https://tobemagic.github.io/aimagician/">在线演示</a> ·
+  <a href="https://tobemagic.github.io/computer-magician/">在线演示</a> ·
   <a href="#quick-start">快速开始</a> ·
   <a href="#capabilities">能力</a> ·
   <a href="#mcp">接入 MCP</a> ·
@@ -87,7 +87,7 @@ npm run dev
 curl -s http://127.0.0.1:8765/api/health
 ```
 
-静态演示（不连数据库，只能点界面）在 GitHub Pages：<https://tobemagic.github.io/aimagician/>。文章、MCP 和发布要按上面的命令在自己的机器上跑。
+静态演示（不连数据库，只能点界面）在 GitHub Pages：<https://tobemagic.github.io/computer-magician/>。文章、MCP 和发布要按上面的命令在自己的机器上跑。
 
 <a id="capabilities"></a>
 ## 能力
