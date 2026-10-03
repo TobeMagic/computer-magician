@@ -1,0 +1,108 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: aimagician
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: aimagician
+    volumes:
+      - aimagician_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aimagician -d aimagician"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  api:
+    build:
+      context: ../..
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ${AIMAGICIAN_DOCKER_ENV_FILE:-./aimagician.env}
+    environment:
+      AIMAGICIAN_DATABASE_URL: postgresql+psycopg://aimagician:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/aimagician
+      AIMAGICIAN_HOST: 0.0.0.0
+      AIMAGICIAN_PORT: 8765
+    ports:
+      - "${AIMAGICIAN_BIND_HOST:-127.0.0.1}:${AIMAGICIAN_PUBLISHED_PORT:-8765}:8765"
+    volumes:
+      - ../..:/workspace
+      - aimagician_artifacts:/var/lib/aimagician/artifacts
+      - aimagician_playwright:/ms-playwright
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8765/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    command: ["python", "-m", "uvicorn", "app.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8765", "--reload", "--reload-dir", "/workspace/backend/app"]
+
+  worker:
+    build:
+      context: ../..
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ${AIMAGICIAN_DOCKER_ENV_FILE:-./aimagician.env}
+    environment:
+      AIMAGICIAN_DATABASE_URL: postgresql+psycopg://aimagician:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/aimagician
+      AIMAGICIAN_LLM_HTTP_RETRIES: "4"
+    volumes:
+      - ../..:/workspace
+      - aimagician_artifacts:/var/lib/aimagician/artifacts
+      - aimagician_playwright:/ms-playwright
+      - ${AIMAGICIAN_GIT_SSH_DIR:-./ssh}:/root/.ssh:ro
+    command: ["python", "-m", "app.cli", "worker-loop", "--worker-id", "docker-worker", "--poll-interval-seconds", "5"]
+
+  worker_2:
+    build:
+      context: ../..
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ${AIMAGICIAN_DOCKER_ENV_FILE:-./aimagician.env}
+    environment:
+      AIMAGICIAN_DATABASE_URL: postgresql+psycopg://aimagician:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/aimagician
+      AIMAGICIAN_LLM_HTTP_RETRIES: "4"
+    volumes:
+      - ../..:/workspace
+      - aimagician_artifacts:/var/lib/aimagician/artifacts
+      - aimagician_playwright:/ms-playwright
+      - ${AIMAGICIAN_GIT_SSH_DIR:-./ssh}:/root/.ssh:ro
+    command: ["python", "-m", "app.cli", "worker-loop", "--worker-id", "docker-worker-2", "--poll-interval-seconds", "5"]
+
+  publisher_worker:
+    build:
+      context: ../..
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ${AIMAGICIAN_DOCKER_ENV_FILE:-./aimagician.env}
+    environment:
+      AIMAGICIAN_DATABASE_URL: postgresql://aimagician:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/aimagician
+      AIMAGICIAN_PUBLISHER_WORKER_ID: docker-publisher-worker
+    volumes:
+      - ../..:/workspace
+      - aimagician_artifacts:/var/lib/aimagician/artifacts
+      - aimagician_playwright:/ms-playwright
+    command: ["/bin/bash", "/workspace/publisher-worker/start-with-xvfb.sh"]
+
+volumes:
+  aimagician_postgres:
+  aimagician_artifacts:
+    name: aimagician_artifacts
+  aimagician_playwright:
+    name: aimagician_playwright

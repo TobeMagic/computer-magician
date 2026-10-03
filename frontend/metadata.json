@@ -1,0 +1,6 @@
+{
+  "name": "AImagician",
+  "description": "An agent-agnostic full-lifecycle operating system for AI tech media content production, scheduling, quality review, global distribution, and visual asset management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

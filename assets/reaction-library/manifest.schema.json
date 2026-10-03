@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openclaw.local/reaction-library.schema.json",
+  "title": "OpenClaw Reaction Asset Library",
+  "type": "object",
+  "required": [
+    "library_id",
+    "version",
+    "generated_at",
+    "default_variant",
+    "required_variants",
+    "clusters",
+    "assets"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "library_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^v[0-9]+\\.[0-9]+$"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "default_variant": {
+      "type": "string",
+      "enum": [
+        "transparent_png"
+      ]
+    },
+    "required_variants": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "transparent_png"
+        ]
+      }
+    },
+    "clusters": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "display_name",
+          "description",
+          "tone",
+          "tags",
+          "trigger_scenes",
+          "member_asset_ids"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "display_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 6
+          },
+          "tone": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+$"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "trigger_scenes": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "member_asset_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+$"
+            }
+          }
+        }
+      }
+    },
+    "assets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "cluster_id",
+          "display_name",
+          "default_alt",
+          "tone",
+          "tags",
+          "trigger_scenes",
+          "source_path",
+          "variants"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "cluster_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "display_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "default_alt": {
+            "type": "string",
+            "minLength": 8
+          },
+          "ocr_text": {
+            "type": "string"
+          },
+          "ocr_text_normalized": {
+            "type": "string"
+          },
+          "tone": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+$"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "trigger_scenes": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "source_filename_hints": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "notes": {
+            "type": "string"
+          },
+          "source_path": {
+            "type": "string",
+            "pattern": "^sources/(EmojiPackage|ChineseBQB|github-emoji|programmerhumor-io)/.+\\.(png|jpg|jpeg|webp)$"
+          },
+          "variants": {
+            "type": "object",
+            "required": [
+              "transparent_png"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "transparent_png": {
+                "type": "string",
+                "pattern": "^by-id/.+/transparent\\.png$"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

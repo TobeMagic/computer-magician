@@ -1,0 +1,1 @@
+"""AImagician MCP integration."""

@@ -1,0 +1,23 @@
+{
+  "name": "@aimagician/publisher-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "render-mermaid": "tsx src/render-mermaid.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run typecheck"
+  },
+  "dependencies": {
+    "beautiful-mermaid": "^1.1.3",
+    "pg": "^8.16.3",
+    "playwright": "^1.58.2",
+    "tsx": "^4.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@types/pg": "^8.15.6",
+    "typescript": "^5.9.3"
+  }
+}

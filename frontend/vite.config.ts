@@ -1,0 +1,33 @@
+import tailwindcss from '@tailwindcss/vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+import {defineConfig} from 'vite';
+
+export default defineConfig(() => {
+  const apiTarget = process.env.VITE_API_BASE_URL || 'http://127.0.0.1:8765';
+  return {
+    base: process.env.VITE_BASE || '/',
+    plugins: [react(), tailwindcss()],
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, '.'),
+      },
+    },
+    server: {
+      hmr: process.env.DISABLE_HMR !== 'true',
+      watch: process.env.DISABLE_HMR === 'true' ? null : {
+        ignored: ['**/node_modules/**', '**/browser-runners/**', '**/aimagician/browser-runners/**'],
+      },
+      proxy: {
+        '/api': {
+          target: apiTarget,
+          changeOrigin: true,
+        },
+        '/mcp': {
+          target: apiTarget,
+          changeOrigin: true,
+        },
+      },
+    },
+  };
+});

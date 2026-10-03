@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ENV_FILE="${AIMAGICIAN_ENV_FILE:-$ROOT_DIR/.env}"
+HOST="${AIMAGICIAN_HOST:-127.0.0.1}"
+PORT="${AIMAGICIAN_PORT:-8765}"
+
+if [[ -f "$ENV_FILE" ]]; then
+  set -a
+  # shellcheck disable=SC1090
+  source "$ENV_FILE"
+  set +a
+fi
+
+cd "$ROOT_DIR"
+
+usage() {
+  cat <<'USAGE'
+Usage: bin/aimagician-backend <command>
+
+Commands:
+  install          Install backend package in editable mode with dev extras.
+  migrate          Run Alembic migrations to head.
+  bootstrap-admin Create or update the single admin from AIMAGICIAN_ADMIN_* env.
+  doctor           Run deployment diagnostics and fail on hard errors.
+  serve            Start the private API server on AIMAGICIAN_HOST/PORT.
+  smoke            Check /api/health on the configured host/port.
+  worker-once      Execute one allowlisted queued script job.
+  worker-loop      Continuously execute allowlisted queued script jobs.
+  worker-plan      Describe the next worker job without claiming it.
+USAGE
+}
+
+case "${1:-help}" in
+  install)
+    python -m pip install -e ".[dev]"
+    ;;
+  migrate)
+    alembic upgrade head
+    ;;
+  bootstrap-admin)
+    python -m app.cli bootstrap-admin \
+      --email "${AIMAGICIAN_ADMIN_EMAIL:-admin@example.com}" \
+      --display-name "${AIMAGICIAN_ADMIN_DISPLAY_NAME:-AImagician Admin}" \
+      --password "${AIMAGICIAN_ADMIN_PASSWORD:?AIMAGICIAN_ADMIN_PASSWORD is required}"
+    ;;
+  doctor)
+    python -m app.cli doctor --fail-on-error
+    ;;
+  serve)
+    python -m uvicorn app.main:create_app --factory --host "$HOST" --port "$PORT"
+    ;;
+  smoke)
+    curl --fail --silent --show-error "http://$HOST:$PORT/api/health"
+    printf '\n'
+    ;;
+  worker-once)
+    python -m app.cli worker-run-once --worker-id "${AIMAGICIAN_WORKER_ID:-local-worker}"
+    ;;
+  worker-loop)
+    python -m app.cli worker-loop \
+      --worker-id "${AIMAGICIAN_WORKER_ID:-local-worker}" \
+      --poll-interval-seconds "${AIMAGICIAN_WORKER_POLL_INTERVAL_SECONDS:-5}"
+    ;;
+  worker-plan)
+    python -m app.cli worker-run-once --worker-id "${AIMAGICIAN_WORKER_ID:-local-worker}" --dry-run
+    ;;
+  help|--help|-h)
+    usage
+    ;;
+  *)
+    usage >&2
+    exit 2
+    ;;
+esac

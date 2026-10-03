@@ -1,0 +1,17 @@
+[Unit]
+Description=AImagician private API server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/aimagician/backend
+EnvironmentFile=%h/.config/aimagician/aimagician.env
+ExecStart=/opt/aimagician/backend/bin/aimagician-backend serve
+Restart=on-failure
+RestartSec=5
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target

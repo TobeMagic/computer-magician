@@ -1,0 +1,11 @@
+.git
+**/__pycache__/
+**/.pytest_cache/
+**/*.pyc
+**/.env
+**/.openclaw/
+openclaw/browser/node_modules/
+openclaw/credentials/
+openclaw/.env
+ai-magician-blog/.git/
+.planning/

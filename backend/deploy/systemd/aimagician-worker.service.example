@@ -1,0 +1,17 @@
+[Unit]
+Description=AImagician allowlisted job worker
+After=network-online.target aimagician-api.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/aimagician/backend
+EnvironmentFile=%h/.config/aimagician/aimagician.env
+ExecStart=/opt/aimagician/backend/bin/aimagician-backend worker-loop
+Restart=on-failure
+RestartSec=5
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target
